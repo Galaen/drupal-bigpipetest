@@ -1,0 +1,4 @@
+services:
+  bigpipetest.forecast_generator:
+    class: Drupal\bigpipetest\ForecastGeneratorService
+    arguments: ['@opendatasoft.api']

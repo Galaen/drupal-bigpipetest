@@ -1,0 +1,7 @@
+bigpipetest.controller_example:
+  path: '/test'
+  defaults:
+    _controller: '\Drupal\bigpipetest\Controller\BigPipeTestController::render'
+    _title: 'Test'
+  requirements:
+    _permission: 'access content'

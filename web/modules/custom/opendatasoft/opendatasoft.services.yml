@@ -1,0 +1,4 @@
+services:
+  opendatasoft.api:
+    class: Drupal\opendatasoft\APIService
+    arguments: ['@http_client', '@config.factory']
