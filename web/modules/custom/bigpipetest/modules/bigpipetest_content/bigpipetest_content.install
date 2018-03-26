@@ -50,11 +50,13 @@ function bigpipetest_content_install() {
   ]);
   $menu_link->save();
 
+  $defaultTheme = \Drupal::config('system.theme')->get('default');
+
   // Create weather block
   // --------------------
   $block = \Drupal\block\Entity\Block::create([
     'id' => 'weatherforecast2block',
-    'theme' => \Drupal::config('system.theme')->get('default'),
+    'theme' => $defaultTheme,
     'region' => 'sidebar_first',
     'weight' => -10,
     'provider' => NULL,
@@ -67,4 +69,25 @@ function bigpipetest_content_install() {
     ],
   ]);
   $block->save();
+
+
+  // Instantiate big_pipe_demo block in our theme
+  // --------------------------------------------
+/*
+  $block = \Drupal\block\Entity\Block::load('bigpipeanonymoussessionblock');
+  if ($block) {
+    $newBlock = $block->createDuplicateBlock('bigpipeanonymoussessionblock1', $defaultTheme);
+    $newBlock->save();
+  }
+  $block = \Drupal\block\Entity\Block::load('bigpipedemoblock');
+  if ($block) {
+    $newBlock = $block->createDuplicateBlock('bigpipedemoblock1', $defaultTheme);
+    $newBlock->save();
+  }
+  $block = \Drupal\block\Entity\Block::load('bigpipedemoblock_2');
+  if ($block) {
+    $newBlock = $block->createDuplicateBlock('bigpipedemoblock2', $defaultTheme);
+    $newBlock->save();
+  }
+*/
 }
