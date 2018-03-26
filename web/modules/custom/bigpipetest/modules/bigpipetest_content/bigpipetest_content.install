@@ -1,0 +1,39 @@
+<?php
+
+use Drupal\menu_link_content\Entity\MenuLinkContent;
+use Drupal\node\Entity\Node;
+
+/**
+ * Implements hook_install().
+ *
+ * Perform actions to set up some content.
+ *
+ * @see system_install()
+ */
+function bigpipetest_content_install() {
+
+  // Create an article with a lazy textfield
+  // ---------------------------------------
+  $node = Node::create(array(
+    'type' => 'article',
+    'title' => 'Test lazy field',
+    'langcode' => 'en',
+    'uid' => '1',
+    'status' => 1,
+  ));
+  // Generate image
+  $node->field_image->generateSampleItems();
+  $node->body->generateSampleItems();
+  // TODO lazy field but the field needs to be added in the conf before
+  $node->save();
+
+  // Add link to the main menu
+  // -------------------------
+  $menu_link = MenuLinkContent::create([
+    'title' => 'Lazy field test',
+    'link' => ['uri' => 'internal:/node/' . $node->id()],
+    'menu_name' => 'main',
+    'expanded' => TRUE,
+  ]);
+  $menu_link->save();
+}

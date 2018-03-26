@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains bigpipetest_content.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function bigpipetest_content_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the bigpipetest_content module.
+    case 'help.page.bigpipetest_content':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Generated content to Test BigPipe') . '</p>';
+      return $output;
+
+    default:
+  }
+}

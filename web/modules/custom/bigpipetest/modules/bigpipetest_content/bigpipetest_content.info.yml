@@ -1,0 +1,7 @@
+name: 'BigPipeTest Content'
+type: module
+description: 'Generated content to Test BigPipe'
+core: 8.x
+package: 'Custom'
+dependencies:
+  - bigpipetest
