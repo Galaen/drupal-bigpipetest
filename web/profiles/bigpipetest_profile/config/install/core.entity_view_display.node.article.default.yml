@@ -6,10 +6,12 @@ dependencies:
     - field.field.node.article.body
     - field.field.node.article.comment
     - field.field.node.article.field_image
+    - field.field.node.article.field_lazy_text
     - field.field.node.article.field_tags
     - image.style.large
     - node.type.article
   module:
+    - bigpipetest
     - comment
     - image
     - text
@@ -21,14 +23,14 @@ mode: default
 content:
   body:
     type: text_default
-    weight: 0
+    weight: 2
     region: content
     settings: {  }
     third_party_settings: {  }
-    label: hidden
+    label: above
   comment:
     type: comment_default
-    weight: 110
+    weight: 5
     region: content
     label: above
     settings:
@@ -37,23 +39,30 @@ content:
     third_party_settings: {  }
   field_image:
     type: image
-    weight: -1
+    weight: 0
     region: content
     settings:
       image_style: large
       image_link: ''
     third_party_settings: {  }
     label: hidden
+  field_lazy_text:
+    weight: 1
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: lazy_text
+    region: content
   field_tags:
     type: entity_reference_label
-    weight: 10
+    weight: 3
     region: content
     label: above
     settings:
       link: true
     third_party_settings: {  }
   links:
-    weight: 100
+    weight: 4
     region: content
     settings: {  }
     third_party_settings: {  }

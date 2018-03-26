@@ -4,3 +4,7 @@
     border-radius: 5px;
     padding: 5px;
 }
+
+.lazy-loaded + .lazy-loading {
+    display: none;
+}

@@ -56,7 +56,7 @@ class BigPipeTestController extends ControllerBase {
       $build['lazy_container'] = array(
         '#type' => 'container',
         '#attributes' => array(
-          'class' => 'lazy-container',
+          'class' => ['lazy-container'],
         ),
       );
 
@@ -66,6 +66,12 @@ class BigPipeTestController extends ControllerBase {
           [$this->currentUser->id()],
         ],
         '#create_placeholder' => TRUE,
+      ];
+
+      $build['lazy_container']['loading'] = [
+        '#prefix' => '<div class="lazy-loading">',
+        '#suffix' => '</div>',
+        '#markup' => '<p>' . \Drupal::translation()->translate('Loading please wait...') . '</p>',
       ];
 
       // NON Lazy element to display after the lazy element
@@ -95,6 +101,8 @@ class BigPipeTestController extends ControllerBase {
 
       $build = [];
       $build['name'] = [
+        '#prefix' => '<div class="lazy-loaded">',
+        '#suffix' => '</div>',
         '#markup' => '<p>' . $translation->translate('Hello @name', ['@name' => $account->getDisplayName()]) . '</p><br>'
           . '<small>' . $translation->translate('It is @time', ['@time' => \Drupal::service('date.formatter')->format(REQUEST_TIME, 'custom', 'H:i:s')]) . '</small>',
       ];

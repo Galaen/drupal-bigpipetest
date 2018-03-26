@@ -24,16 +24,47 @@ function bigpipetest_content_install() {
   // Generate image
   $node->field_image->generateSampleItems();
   $node->body->generateSampleItems();
-  // TODO lazy field but the field needs to be added in the conf before
+  $node->field_lazy_text->value = '<p>This field use a formatter made of a <strong>lazy builder</strong>.<br>It should appear after the other fields.</p>';
   $node->save();
 
   // Add link to the main menu
   // -------------------------
   $menu_link = MenuLinkContent::create([
-    'title' => 'Lazy field test',
+    'title' => 'Lazy field',
+    'description' => 'Lazy field test',
     'link' => ['uri' => 'internal:/node/' . $node->id()],
     'menu_name' => 'main',
     'expanded' => TRUE,
   ]);
   $menu_link->save();
+
+
+  // Add controller page to the menu
+  // -------------------------
+  $menu_link = MenuLinkContent::create([
+    'title' => 'Lazy controller',
+    'description' => 'Lazy controller test',
+    'link' => ['uri' => 'internal:/test'],
+    'menu_name' => 'main',
+    'expanded' => TRUE,
+  ]);
+  $menu_link->save();
+
+  // Create weather block
+  // --------------------
+  $block = \Drupal\block\Entity\Block::create([
+    'id' => 'weatherforecast2block',
+    'theme' => \Drupal::config('system.theme')->get('default'),
+    'region' => 'sidebar_first',
+    'weight' => -10,
+    'provider' => NULL,
+    'plugin' => 'weather_forecast_block',
+    'visibility' => [],
+    'settings' => [
+      'label' => 'Weather forecast',
+      'provider' => 'bigpipetest',
+      'label_display' => 'visible',
+    ],
+  ]);
+  $block->save();
 }

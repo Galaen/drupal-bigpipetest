@@ -71,4 +71,8 @@ function bigpipetest_profile_install() {
 
   // Enable the admin theme.
   \Drupal::configFactory()->getEditable('node.settings')->set('use_admin_theme', TRUE)->save(TRUE);
+
+  // Install content module (installed here to have the theme and its regions installed before)
+  \Drupal::service('module_installer')->install(['bigpipetest_content']);//, 'big_pipe_demo']);
+
 }
