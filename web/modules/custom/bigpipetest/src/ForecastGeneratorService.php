@@ -51,6 +51,7 @@ class ForecastGeneratorService implements ForecastGeneratorServiceInterface {
       }
 
       $build['is_cached']['#markup'] = t('<p>Serving CACHED version (@time sec.)</p>', ['@time' => $cacheDuration]);
+      $build['time']['#markup'] = t('<p><small>Generation timestamp: @timestamp</small></p>', ['@timestamp' => $now]);
 
       $build['table'] = [
         '#type' => 'table',
