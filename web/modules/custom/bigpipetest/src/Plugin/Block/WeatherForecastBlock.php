@@ -61,7 +61,7 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
    */
   public function build() {
     $build = [];
-    $build['weather_forecast_block']['#markup'] = 'Implement WeatherForecastBlock.';
+    $build['weather_forecast_block']['#markup'] = $this->t('<p>Displays the next few hours weather forecast.</p>');
 
     $build['lazy_container']['lazy_builder'] = [
       '#lazy_builder' => [

@@ -49,7 +49,7 @@ class SimpleNoCacheBlock extends BlockBase implements ContainerFactoryPluginInte
 
     //sleep(2);
 
-    $build['text']['#markup'] = 'Simple NO CACHE block: ' . time() . sleep(10)
+    $build['text']['#markup'] = 'Simple NO CACHE block: ' . time()// . sleep(10)
       . 'sdflgsdflm<br>'
       . 'sdflgsdflm<br>'
       . 'sdflgsdflm<br>'
