@@ -37,6 +37,13 @@ class ForecastGeneratorService implements ForecastGeneratorServiceInterface {
     $this->sessionManager = $session_manager;
   }
 
+  /**
+   * TODO Provide an id to have different cache according to the block instance
+   *
+   * @param bool $session_started
+   * @param int $cache_duration
+   * @return null
+   */
   public function generateWeatherForecast(bool $session_started, int $cache_duration) {
     //$sessionStarted = $this->sessionManager->isStarted();
 

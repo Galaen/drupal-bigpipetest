@@ -82,14 +82,67 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
       $container->get('session_manager')
     );
   }
-  /**
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function defaultConfiguration() {
+        return [
+            'cache_duration' => 30,
+            'nosession_cache_duration' => 60,
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function blockForm($form, FormStateInterface $form_state) {
+        $config = $this->configuration;
+
+        $form['cache_duration'] = [
+            '#type' => 'number',
+            '#title' => $this->t('Default cache duration (sec)'),
+            '#description' => $this->t('The cache duration for users with a session.'),
+            '#required' => TRUE,
+            '#default_value' => $config['cache_duration'],
+            '#step' => 1,
+            '#min' => 0,
+//            '#max' => static::MAX_DURATION,
+        ];
+        $form['nosession_cache_duration'] = [
+            '#type' => 'number',
+            '#title' => $this->t('Sessionless cache duration (ms)'),
+            '#description' => $this->t('The cache duration for users without a session.'),
+            '#required' => TRUE,
+            '#default_value' => $config['nosession_cache_duration'],
+            '#step' => 1,
+            '#min' => 0,
+//            '#max' => static::MAX_DURATION,
+        ];
+
+        return $form;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function blockSubmit($form, FormStateInterface $form_state) {
+        $this->configuration['cache_duration'] = $form_state->getValue('cache_duration');
+        $this->configuration['nosession_cache_duration'] = $form_state->getValue('nosession_cache_duration');
+    }
+
+
+    /**
    * {@inheritdoc}
    */
   public function build() {
     $sessionStarted = $this->sessionManager->isStarted();
-    $cacheDuration = 60;
+
     if ($sessionStarted)
-      $cacheDuration = 30;
+      $cacheDuration = $this->configuration['cache_duration'];
+    else
+      $cacheDuration = $this->configuration['nosession_cache_duration'];
 
     $build = [];
     $build['weather_forecast_block']['#markup'] = $this->t('<p>Displays the next few hours weather forecast.</p>');
