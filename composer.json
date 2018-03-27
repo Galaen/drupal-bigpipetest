@@ -21,6 +21,7 @@
         "drupal-composer/drupal-scaffold": "^2.2",
         "drupal/admin_toolbar": "^1.23",
         "drupal/big_pipe_demo": "^1.2",
+        "drupal/big_pipe_sessionless": "^1.1",
         "drupal/console": "^1.0.2",
         "drupal/core": "~8.5",
         "drupal/devel": "^1.2",

@@ -43,13 +43,13 @@ class BigPipeTestController extends ControllerBase {
       $build = [];
 
       // NON Lazy element to display before the lazy element
-      $build['before_lazy'] = [
-        '#markup' => '<p>' . \Drupal::translation()->translate('Before lazy') . '</p>',
+      $build['description'] = [
+        '#markup' => '<p>' . \Drupal::translation()->translate('This controller has a lazy part that will be rendered last even if it is before in the DOM as <strong>getPlaceholderOrder</strong> from the big_pipe service has been overridden.') . '</p>',
       ];
 
       // NON Lazy element to display before the lazy element
-      $build['description'] = [
-        '#markup' => '<p>' . \Drupal::translation()->translate('This controller has a lazy part that will be rendered last even if it is before in the DOM as <strong>getPlaceholderOrder</strong> from the big_pipe service has been overridden.') . '</p>',
+      $build['before_lazy'] = [
+        '#markup' => '<p>' . \Drupal::translation()->translate('Before lazy') . '</p>',
       ];
 
       // Lazy element
