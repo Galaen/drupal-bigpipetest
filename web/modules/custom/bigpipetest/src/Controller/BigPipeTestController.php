@@ -79,6 +79,9 @@ class BigPipeTestController extends ControllerBase {
         '#markup' => '<p>' . \Drupal::translation()->translate('After lazy') . '</p>'
       ];
 
+      // Disable the cache for the entire page!
+      //\Drupal::service('page_cache_kill_switch')->trigger();
+
       return $build;
     }
 

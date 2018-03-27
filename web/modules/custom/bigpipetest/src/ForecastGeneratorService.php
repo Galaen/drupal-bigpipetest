@@ -79,13 +79,12 @@ class ForecastGeneratorService implements ForecastGeneratorServiceInterface {
       ];
 
       if ($session_started) {
-        \Drupal::cache()->set($cid, $build, $now + $cache_duration);
+        \Drupal::cache()->set($cid, $build, $now + $cache_duration, ['weather_forecast_block']);
         $build['is_cached']['#markup'] = t('<p>Serving WEB SERVICE version</p>');
       }
       else
-        $build['is_cached']['#markup'] = t('<p>Serving NO SESSION CACHED version<br><small>Cache duration: @time sec.</small><br><small>This only works if internal page cache is not activated.</small></p>', ['@time' => $cache_duration]);
+        $build['is_cached']['#markup'] = t('<p>Serving NO SESSION CACHED version<br><small>Cache duration: @time sec.</small><br><small>This only works if internal page cache is not activated.</small><br><small>Invalidate cache tag to rebuild pages.</small></p>', ['@time' => $cache_duration]);
     }
-
 
 
     return $build;

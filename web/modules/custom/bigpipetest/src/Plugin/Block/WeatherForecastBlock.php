@@ -3,6 +3,10 @@
 namespace Drupal\bigpipetest\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
+use Drupal\Core\Cache\Cache;
+use Drupal\Core\Form\FormBuilderInterface;
+use Drupal\Core\Form\FormInterface;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\Core\Url;
@@ -17,7 +21,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *  admin_label = @Translation("Weather forecast block"),
  * )
  */
-class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginInterface {
+class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginInterface, FormInterface {
 
   /**
    * Drupal\opendatasoft\APIServiceInterface definition.
@@ -25,6 +29,13 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
    * @var \Drupal\opendatasoft\APIServiceInterface
    */
   protected $opendatasoftApi;
+
+  /**
+   * The form builder.
+   *
+   * @var \Drupal\Core\Form\FormBuilderInterface
+   */
+  protected $formBuilder;
 
   /**
    * The session manager.
@@ -44,17 +55,18 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
    *   The plugin implementation definition.
    * @param APIServiceInterface $opendatasoft_api
    *   Service to abstract OpenDataSoft API.
+   * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
+   *   The form builder.
    * @param \Drupal\Core\Session\SessionManagerInterface $session_manager
    *   The session manager.
    */
   public function __construct(
-    array $configuration,
-    $plugin_id,
-    $plugin_definition,
-    APIServiceInterface $opendatasoft_api, SessionManagerInterface $session_manager
+    array $configuration, $plugin_id, $plugin_definition,
+    APIServiceInterface $opendatasoft_api, FormBuilderInterface $form_builder, SessionManagerInterface $session_manager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->opendatasoftApi = $opendatasoft_api;
+    $this->formBuilder = $form_builder;
     $this->sessionManager = $session_manager;
   }
   /**
@@ -66,6 +78,7 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
       $plugin_id,
       $plugin_definition,
       $container->get('opendatasoft.api'),
+      $container->get('form_builder'),
       $container->get('session_manager')
     );
   }
@@ -106,16 +119,59 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
       ]
     ];
 
+    // FORM
+    $build['form'] = $this->formBuilder->getForm($this);
+
+    // CACHE
     $maxAge = \Drupal\Core\Cache\Cache::PERMANENT;
     if (!$sessionStarted) {
       $maxAge = $cacheDuration;   // 1 min cache when there is no session
     }
     $build['#cache'] = [
       'contexts' => ['session.exists'], // 2 cache version (for user with a session and for the others)
-      'max-age' => $maxAge
+      'max-age' => $maxAge,
+      'tags' => ['weather_forecast_block'],
     ];
 
     return $build;
+  }
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'bigpipetest_weather_forecast_block';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['inv_cache_tag'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Invalidate cache tag'),
+      '#submit' => ['::invCacheTag'],
+    ];
+
+    return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {}
+
+  /**
+   * Starts session.
+   */
+  public function invCacheTag(array &$form, FormStateInterface $form_state) {
+    Cache::invalidateTags(['weather_forecast_block']);
   }
 
 }
