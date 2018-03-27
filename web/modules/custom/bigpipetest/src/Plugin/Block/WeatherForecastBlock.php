@@ -4,9 +4,10 @@ namespace Drupal\bigpipetest\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\opendatasoft\APIServiceInterface;
+use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\Core\Url;
+use Drupal\opendatasoft\APIServiceInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a 'WeatherForecastBlock' block.
@@ -26,6 +27,13 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
   protected $opendatasoftApi;
 
   /**
+   * The session manager.
+   *
+   * @var \Drupal\Core\Session\SessionManagerInterface
+   */
+  protected $sessionManager;
+
+  /**
    * Constructs a new WeatherForecastBlock object.
    *
    * @param array $configuration
@@ -35,15 +43,19 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
    * @param string $plugin_definition
    *   The plugin implementation definition.
    * @param APIServiceInterface $opendatasoft_api
+   *   Service to abstract OpenDataSoft API.
+   * @param \Drupal\Core\Session\SessionManagerInterface $session_manager
+   *   The session manager.
    */
   public function __construct(
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    APIServiceInterface $opendatasoft_api
+    APIServiceInterface $opendatasoft_api, SessionManagerInterface $session_manager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->opendatasoftApi = $opendatasoft_api;
+    $this->sessionManager = $session_manager;
   }
   /**
    * {@inheritdoc}
@@ -53,23 +65,34 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('opendatasoft.api')
+      $container->get('opendatasoft.api'),
+      $container->get('session_manager')
     );
   }
   /**
    * {@inheritdoc}
    */
   public function build() {
+    $sessionStarted = $this->sessionManager->isStarted();
+    $cacheDuration = 60;
+    if ($sessionStarted)
+      $cacheDuration = 30;
+
     $build = [];
     $build['weather_forecast_block']['#markup'] = $this->t('<p>Displays the next few hours weather forecast.</p>');
 
-    $build['lazy_container']['lazy_builder'] = [
-      '#lazy_builder' => [
-        'bigpipetest.forecast_generator:generateWeatherForecast',
-        [],
-      ],
-      '#create_placeholder' => TRUE,
-    ];
+    if ($sessionStarted) {
+      $build['lazy_container']['lazy_builder'] = [
+        '#lazy_builder' => [
+          'bigpipetest.forecast_generator:generateWeatherForecast',
+          [$sessionStarted, $cacheDuration],
+        ],
+        '#create_placeholder' => TRUE,
+      ];
+    }
+    else {
+      $build['lazy_container']['table'] = \Drupal::service('bigpipetest.forecast_generator')->generateWeatherForecast(FALSE, $cacheDuration);
+    }
     $build['source'] = [
       '#type' => 'link',
       '#title' => t('Source'),
@@ -81,6 +104,15 @@ class WeatherForecastBlock extends BlockBase implements ContainerFactoryPluginIn
           'target' => '_blank'
         ]
       ]
+    ];
+
+    $maxAge = \Drupal\Core\Cache\Cache::PERMANENT;
+    if (!$sessionStarted) {
+      $maxAge = $cacheDuration;   // 1 min cache when there is no session
+    }
+    $build['#cache'] = [
+      'contexts' => ['session.exists'], // 2 cache version (for user with a session and for the others)
+      'max-age' => $maxAge
     ];
 
     return $build;

@@ -1,4 +1,4 @@
 services:
   bigpipetest.forecast_generator:
     class: Drupal\bigpipetest\ForecastGeneratorService
-    arguments: ['@opendatasoft.api']
+    arguments: ['@opendatasoft.api', '@session_manager']

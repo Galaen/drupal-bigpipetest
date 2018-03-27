@@ -1,6 +1,8 @@
 <?php
 
 namespace Drupal\bigpipetest;
+
+use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\opendatasoft\APIServiceInterface;
 
 /**
@@ -14,25 +16,39 @@ class ForecastGeneratorService implements ForecastGeneratorServiceInterface {
    * @var \Drupal\opendatasoft\APIServiceInterface
    */
   protected $opendatasoftApi;
+
+  /**
+   * The session manager.
+   *
+   * @var \Drupal\Core\Session\SessionManagerInterface
+   */
+  protected $sessionManager;
+
   /**
    * Constructs a new ForecastGeneratorService object.
+   *
+   * @param \Drupal\opendatasoft\APIServiceInterface $opendatasoft_api
+   *   Service to abstract OpenDataSoft API.
+   * @param \Drupal\Core\Session\SessionManagerInterface $session_manager
+   *   The session manager.
    */
-  public function __construct(APIServiceInterface $opendatasoft_api) {
+  public function __construct(APIServiceInterface $opendatasoft_api, SessionManagerInterface $session_manager) {
     $this->opendatasoftApi = $opendatasoft_api;
+    $this->sessionManager = $session_manager;
   }
 
-  public function generateWeatherForecast() {
+  public function generateWeatherForecast(bool $session_started, int $cache_duration) {
+    //$sessionStarted = $this->sessionManager->isStarted();
+
     $rows = [];
 
     $cid = 'bigpipetest:weatherforecast';
     $build = NULL;
-    if ($cache = \Drupal::cache()->get($cid)) {
+    if (($cache = \Drupal::cache()->get($cid)) && $session_started) {
       $build = $cache->data;
     }
     else {
       $now = time();
-      $cacheDuration = 30;  // 30 sec.
-
       $count  = 5;
 
       $res = $this->opendatasoftApi->getWeatherForecastParis();
@@ -50,7 +66,7 @@ class ForecastGeneratorService implements ForecastGeneratorServiceInterface {
         }
       }
 
-      $build['is_cached']['#markup'] = t('<p>Serving CACHED version (@time sec.)</p>', ['@time' => $cacheDuration]);
+      $build['is_cached']['#markup'] = t('<p>Serving CACHED version<br><small>Cache duration: @time sec.</small></p>', ['@time' => $cache_duration]);
       $build['time']['#markup'] = t('<p><small>Generation timestamp: @timestamp</small></p>', ['@timestamp' => $now]);
 
       $build['table'] = [
@@ -62,10 +78,12 @@ class ForecastGeneratorService implements ForecastGeneratorServiceInterface {
         '#rows' => $rows,
       ];
 
-      //$data = my_module_complicated_calculation();
-      \Drupal::cache()->set($cid, $build, $now + $cacheDuration);
-
-      $build['is_cached']['#markup'] = 'Serving WEB SERVICE version';
+      if ($session_started) {
+        \Drupal::cache()->set($cid, $build, $now + $cache_duration);
+        $build['is_cached']['#markup'] = t('<p>Serving WEB SERVICE version</p>');
+      }
+      else
+        $build['is_cached']['#markup'] = t('<p>Serving NO SESSION CACHED version<br><small>Cache duration: @time sec.</small><br><small>This only works if internal page cache is not activated.</small></p>', ['@time' => $cache_duration]);
     }
 
 
