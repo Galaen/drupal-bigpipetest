@@ -33,3 +33,11 @@ function bigpipetest_theme() {
     ],
   ];
 }
+
+/**
+ * Implements hook_cron().
+ */
+function bigpipetest_cron() {
+  // Invalidate Weather cache tag when the cron is executed.
+  \Drupal\Core\Cache\Cache::invalidateTags(['weather_forecast_block']);
+}
